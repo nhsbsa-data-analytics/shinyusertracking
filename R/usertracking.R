@@ -96,7 +96,8 @@ check_cols <- function(columns) {
     "username",
     "login",
     "logout",
-    "duration"
+    "duration",
+    "tag"
   )
 
   if (is.null(columns)) {
@@ -127,7 +128,7 @@ check_cols <- function(columns) {
 #' setup_sheet("A new Shiny app", c("login", "logout", "duration"))
 #' }
 setup_sheet <- function(sheet_name = pkgload::pkg_name(),
-                        columns = c("login", "logout", "duration"),
+                        columns = c("login", "logout", "duration", "tag"),
                         creds = ".google-sheets-credentials") {
   columns <- check_cols(columns)
 
@@ -165,6 +166,7 @@ setup_sheet <- function(sheet_name = pkgload::pkg_name(),
 #'  duration. By default login, logout and duration will be logged.
 #' @param creds File used to store credentials. Defaults to `.google-sheets-credentials`.
 #' @param no_local Whether to ignore local sessions. Default is TRUE.
+#' @param tag A custom label for this app. If NULL, defaults to the app's URL.
 #'
 #' @return Nothing, used for side-effects only
 #'
@@ -185,9 +187,9 @@ setup_sheet <- function(sheet_name = pkgload::pkg_name(),
 #' shinyApp(ui, server)
 #' }
 use_logging <- function(sheet_name = pkgload::pkg_name(),
-                        columns = c("login", "logout", "duration"),
+                        columns = c("login", "logout", "duration", "tag"),
                         creds = ".google-sheets-credentials",
-                        no_local = TRUE) {
+                        no_local = TRUE, tag = NULL) {
   # If session appears to be local, do nothing
   is_server <- nzchar(Sys.getenv("SHINY_PORT"))
   if (no_local && !is_server) {
@@ -209,6 +211,13 @@ use_logging <- function(sheet_name = pkgload::pkg_name(),
 
   session <- get("session", parent.frame())
 
+  # Construct URL if tag is NULL
+  if (is.null(tag)) {
+    tag <- paste0(session$clientData$url_protocol, "//",
+                  session$clientData$url_hostname,
+                  session$clientData$url_pathname)
+  }
+
   set_credentials(creds)
 
   googlesheets4::gs4_auth(
@@ -221,7 +230,8 @@ use_logging <- function(sheet_name = pkgload::pkg_name(),
     username = ifelse(is.null(session$user), "unknown", session$user),
     login = Sys.time(),
     logout = lubridate::NA_POSIXct_,
-    duration = NA_character_
+    duration = NA_character_,
+    tag = tag
   )
 
   session$onSessionEnded(function() {
