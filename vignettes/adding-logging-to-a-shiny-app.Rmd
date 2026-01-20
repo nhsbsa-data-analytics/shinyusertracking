@@ -44,7 +44,7 @@ The file in which credentials are saved will be added to the `.gitignore` file a
 
 ## Set up logging sheet
 
-Once the credentials are added you can add a new sheet for the app. To do this, again ensuring you are in the root directory of the R project containing the app, run `setup_sheet()`. This will append a new sheet to the sheet with ID provided earlier. By default, `login`, `logout` and `duration` will be logged. Although `sessionid` and `username` are also available, these have potential to be treated as PII.
+Once the credentials are added you can add a new sheet for the app. To do this, again ensuring you are in the root directory of the R project containing the app, run `setup_sheet()`. This will append a new sheet to the sheet with ID provided earlier. By default, `login`, `logout`, `duration` and `tag` will be logged. Although `sessionid` and `username` are also available, these have potential to be treated as PII.
 
 Before the sheet can be added, authorisation must take place. You have two options.
 
@@ -66,6 +66,12 @@ server <- function(input, output, session) {
   ...
   ...
 }
+```
+
+By default, the `tag` used will be the deployed app's URL. You can set a custom `tag` like
+
+```r
+shinyusertracking::use_logging(tag = "Version for 2023/24")
 ```
 
 ## Shiny apps as packages

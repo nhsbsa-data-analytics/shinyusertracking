@@ -6,7 +6,7 @@
 \usage{
 setup_sheet(
   sheet_name = pkgload::pkg_name(),
-  columns = c("login", "logout", "duration"),
+  columns = c("login", "logout", "duration", "tag"),
   creds = ".google-sheets-credentials"
 )
 }
